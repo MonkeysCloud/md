@@ -1,0 +1,19 @@
+services:
+  tesla_modal.event_sub.wrap_modal_in_theme_view_alter_subscriber:
+    class: Drupal\tesla_modal\EventSubscriber\WrapModalInThemeViewAlterSubscriber
+    arguments: []
+    tags:
+      - { name: event_subscriber }
+
+  tesla_modal.manager:
+    class: Drupal\tesla_modal\TeslaModalManager
+    arguments: ['@entity_type.manager', '@entity.memory_cache']
+
+  tesla_modal.route.subscriber:
+    class: Drupal\tesla_modal\Routing\TeslaModalRouteSubscriber
+    tags:
+      - { name: event_subscriber }
+
+  logger.channel.tesla_modal:
+    parent: logger.channel_base
+    arguments: ['tesla_modal']

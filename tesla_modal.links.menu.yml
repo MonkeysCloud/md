@@ -1,0 +1,12 @@
+# Modal type menu items definition
+entity.tesla_modal_type.collection:
+  title: 'Modal type'
+  route_name: entity.tesla_modal_type.collection
+  description: 'List Modal type (bundles)'
+  parent: system.admin_structure
+
+entity.tesla_modal.collection:
+  title: 'Modals'
+  route_name: entity.tesla_modal.collection
+  description: 'List of modals'
+  parent: system.admin_content

@@ -1,0 +1,10 @@
+entity.tesla_modal.add_form:
+  route_name: entity.tesla_modal.add_page
+  title: 'Add Modal'
+  appears_on:
+    - entity.tesla_modal.collection
+entity.tesla_modal_type.add_form:
+  route_name: entity.tesla_modal_type.add_form
+  title: 'Add Modal type'
+  appears_on:
+    - entity.tesla_modal_type.collection

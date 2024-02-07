@@ -1,0 +1,9 @@
+entity.tesla_modal.collection:
+  path: '/admin/content/tesla_modal'
+  defaults:
+    _entity_list: tesla_modal
+    _title: 'Modals'
+  requirements:
+    _permission: 'view unpublished modal entities'
+  options:
+    _admin_route: TRUE

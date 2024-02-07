@@ -1,0 +1,8 @@
+name: 'Tesla Modal'
+type: module
+description: 'Tesla Modal module'
+core_version_requirement: ^8.8 || ^9
+package: 'Tesla'
+dependencies:
+  - tesla_core
+  - tesla_asset_injector

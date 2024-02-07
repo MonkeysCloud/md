@@ -1,0 +1,144 @@
+<?php
+
+/**
+ * @file
+ * Contains tesla_modal.module.
+ */
+
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\editor\Entity\Editor;
+use Drupal\tesla_modal\Plugin\Filter\TeslaModalFilter;
+
+/**
+ * Implements hook_help().
+ *
+ * @param string                                  $route_name  Route name.
+ * @param Drupal\Core\Routing\RouteMatchInterface $route_match Useful information about the selected route.
+ *
+ * @return string
+ *   html template
+ */
+function tesla_modal_help(string $route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the tesla_modal module.
+    case 'help.page.tesla_modal':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Tesla Modal module') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * @return array
+ *   Array of theme hooks.
+ */
+function tesla_modal_theme() {
+  $theme = [];
+  $theme['tesla_modal'] = [
+    'render element' => 'elements',
+    'file' => 'tesla_modal.page.inc',
+    'template' => 'tesla_modal',
+  ];
+  $theme['tesla_modal_content_add_list'] = [
+    'render element' => 'content',
+    'variables' => ['content' => NULL],
+    'file' => 'tesla_modal.page.inc',
+  ];
+  $theme['tesla_modal_modal'] = [
+    'template' => 'tesla-modal-modal',
+    'variables' => [
+      'modal_title' => '',
+      'modal_content' => '',
+      'background_color' => '',
+      'modal_id' => '',
+      'btn_id' => '',
+    ],
+  ];
+  return $theme;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ *
+ * @param array $variables The tesla-modal variables.
+ *
+ * @return array
+ *   Array of options.
+ */
+function tesla_modal_theme_suggestions_tesla_modal(array $variables) {
+  $suggestions = [];
+  $entity = $variables['elements']['#tesla_modal'];
+  $sanitized_view_mode = strtr($variables['elements']['#view_mode'], '.', '_');
+
+  $suggestions[] = 'tesla_modal__' . $sanitized_view_mode;
+  $suggestions[] = 'tesla_modal__' . $entity->bundle();
+  $suggestions[] = 'tesla_modal__' . $entity->bundle() . '__' . $sanitized_view_mode;
+  $suggestions[] = 'tesla_modal__' . $entity->id();
+  $suggestions[] = 'tesla_modal__' . $entity->id() . '__' . $sanitized_view_mode;
+  return $suggestions;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ *
+ * Add a modal selector on EditorLinkDialog if the filter allows it.
+ */
+function tesla_modal_form_editor_link_dialog_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $argument = $form_state->getBuildInfo()['args'][0];
+  // In case the only argument we get is the Editor instead of the FilterFormat.
+  if ($argument instanceof Editor) {
+    $argument = $argument->getFilterFormat();
+  }
+  // Sanity check to ensure the modal filter is enabled.
+  /** @var \Drupal\filter\FilterPluginCollection $filters */
+  $filters = $argument->filters();
+  if (!$filters->has(TeslaModalFilter::PLUGIN_ID)) {
+    return;
+  }
+
+  if (isset($form_state->getUserInput()['editor_object'])) {
+    $input = $form_state->getUserInput()['editor_object'];
+    $form_state->set('link_element', $input);
+    $form_state->setCached(TRUE);
+  }
+  else {
+    // Retrieve the link element's attributes from form state.
+    $input = $form_state->get('link_element') ?: [];
+  }
+
+  $options = [
+    NULL => t('-- Select modal --'),
+  ];
+  /** @var \Drupal\tesla_modal\TeslaModalManager $modal_manager */
+  $modal_manager = \Drupal::service('tesla_modal.manager');
+  foreach ($modal_manager->getModals() as $modal_id => $modal) {
+    $options[$modal_id] = $modal->label();
+  }
+  $form['attributes']['data-tcl-modal-id'] = [
+    '#title' => t('Modal'),
+    '#description' => t('Link will trigger a modal.'),
+    '#type' => 'select',
+    '#options' => $options,
+    '#group' => 'advanced',
+    '#default_value' => $input['data-tcl-modal-id'] ?? '',
+    '#weight' => 3,
+  ];
+
+  array_unshift($form['#submit'], 'tesla_modal_dialog_submit');
+}
+
+/**
+ * Sets data-tcl-modal-id attribute.
+ */
+function tesla_modal_dialog_submit(array &$form, FormStateInterface $form_state) {
+  $modalId = $form_state->getValue('attributes')['data-tcl-modal-id'] ?? NULL;
+  if (!empty($modalId)) {
+    $form_state->setValue(['attributes', 'data-tcl-modal-id'], $modalId);
+  }
+}

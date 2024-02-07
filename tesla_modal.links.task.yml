@@ -1,0 +1,28 @@
+# Modal routing definition
+
+entity.tesla_modal.canonical:
+  route_name: entity.tesla_modal.canonical
+  base_route: entity.tesla_modal.canonical
+  title: 'View'
+
+entity.tesla_modal.edit_form:
+  route_name: entity.tesla_modal.edit_form
+  base_route: entity.tesla_modal.canonical
+  title: 'Edit'
+
+entity.tesla_modal.version_history:
+  route_name: entity.tesla_modal.version_history
+  base_route: entity.tesla_modal.canonical
+  title: 'Revisions'
+
+entity.tesla_modal.delete_form:
+  route_name:  entity.tesla_modal.delete_form
+  base_route:  entity.tesla_modal.canonical
+  title: Delete
+  weight: 10
+
+entity.tesla_modal.collection:
+  title: Modals
+  route_name: entity.tesla_modal.collection
+  base_route: system.admin_content
+  weight: 10
